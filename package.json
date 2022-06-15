@@ -1,0 +1,31 @@
+{
+  "name": "@curvefi/waves-api",
+  "version": "1.0.0-alpha",
+  "description": "JavaScript library for Curve on Waves",
+  "main": "lib/index.js",
+  "author": "Macket",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "rm -rf lib && tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@waves/signer": "^1.0.10",
+    "@waves/ts-lib-crypto": "^1.4.4-beta.1",
+    "@waves/waves-transactions": "^4.2.5-beta.3",
+    "axios": "^0.27.2",
+    "bignumber.js": "^9.0.2",
+    "memoizee": "^0.4.15"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.1",
+    "@types/memoizee": "^0.4.8",
+    "@types/mocha": "^9.1.1",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
+    "@typescript-eslint/parser": "^5.26.0",
+    "chai": "^4.3.6",
+    "eslint": "^8.16.0",
+    "mocha": "^10.0.0",
+    "typescript": "^4.7.2"
+  }
+}
