@@ -98,7 +98,7 @@ export class Pool {
     }
 
     private async statsBalances(): Promise<string[]> {
-        const _balances = await getDataByRegExp(this.address, "balances_\\d");
+        const _balances = await getDataByRegExp(this.address, "balances_%5Cd"); // \d
         return _balances.map((_b, i) => formatUnits(_b.value as number, this.decimals[i]));
     }
 
