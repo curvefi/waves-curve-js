@@ -73,6 +73,7 @@ class Curve implements ICurve {
             });
         }
 
+        this.constants.decimals['WAVES'] = 8;
         this.constants.coins = COINS;
         this.constants.poolsData = POOLS_DATA;
         // @ts-ignore
