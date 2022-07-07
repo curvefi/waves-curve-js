@@ -127,11 +127,11 @@ describe('General test', async function () {
     this.timeout(120000);
 
     before(async function () {
-        await curve.init(NODE, "Seed", { seed: SEED, chainId: 82 });
+        await curve.init(NODE, "Seed", { seed: SEED, chainId: 84 });
     });
 
     for (const poolId of POOLS) {
         liquidityTest(poolId);
-        // exchangeTest(poolId);
+        exchangeTest(poolId);
     }
 })
