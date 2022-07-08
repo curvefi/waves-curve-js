@@ -83,7 +83,7 @@ export class Pool {
         future_A_time?: number,
     }> {
         const res = await Promise.all([
-            getDataByRegExp(this.address, "admin_fee|fee|future_A|future_A_time|initial_A|initial_A_time"),
+            getDataByRegExp(this.address, "admin_fee%7Cfee%7Cfuture_A%7Cfuture_A_time%7Cinitial_A%7Cinitial_A_time"), // %7C == |
             callViewMethod(this.address, 'get_virtual_price()'),
             callViewMethod(this.address, 'A()'),
         ]);
@@ -98,7 +98,7 @@ export class Pool {
     }
 
     private async statsBalances(): Promise<string[]> {
-        const _balances = await getDataByRegExp(this.address, "balances_%5Cd"); // \d
+        const _balances = await getDataByRegExp(this.address, "balances_%5Cd"); // %5C == \
         return _balances.map((_b, i) => formatUnits(_b.value as number, this.decimals[i]));
     }
 
