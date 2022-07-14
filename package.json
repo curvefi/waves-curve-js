@@ -1,6 +1,6 @@
 {
   "name": "@curvefi/waves-api",
-  "version": "1.0.0-alpha",
+  "version": "1.0.1-alpha",
   "description": "JavaScript library for Curve on Waves",
   "main": "lib/index.js",
   "author": "Macket",
