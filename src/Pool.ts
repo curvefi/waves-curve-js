@@ -353,14 +353,14 @@ export class Pool {
 
             const promises = rewardIds.map((id) => getAssetDetails(id));
             const rewards = (await Promise.all(promises)).map((details) => ({
-                assetId: details.assetId,
-                name: details.name,
+                token: details.assetId,
+                symbol: details.name,
                 decimals: details.decimals,
             }));
 
             if (wavesIdx >= 0) rewards.unshift({
-                assetId: 'WAVES',
-                name: 'WAVES',
+                token: 'WAVES',
+                symbol: 'WAVES',
                 decimals: 8,
             });
 

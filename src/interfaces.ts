@@ -42,8 +42,8 @@ export interface IAssetDetails {
 }
 
 export interface IRewardToken {
-    assetId: string,
-    name: string,
+    token: string,
+    symbol: string,
     decimals: number,
 }
 
