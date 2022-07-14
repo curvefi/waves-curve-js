@@ -90,8 +90,12 @@ class Curve implements ICurve {
             // @ts-ignore
             return (await this.signer.invoke(tx).broadcast()).id;
         } else if (this.providerType === 'Keeper') {
-            // @ts-ignore
-            return (await WavesKeeper.signAndPublishTransaction({ type: 16, data: tx })).id;
+            try {
+                // @ts-ignore
+                return JSON.parse(await WavesKeeper.signAndPublishTransaction({type: 16, data: tx})).id;
+            } catch (err) {
+                throw Error((err as { message: string }).message);
+            }
         } else {
             try {
                 const sentTx = await broadcast(invokeScript(tx, this.seed as string), this.node);
