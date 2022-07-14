@@ -140,9 +140,9 @@ export class Pool {
     private async walletRewardBalances(...addresses: (string | string[])[]): Promise<IDict<IDict<string>> | IDict<string>> {
         const rewardTokens = await this._getRewardTokens();
         await rewardTokens.forEach((token) => {
-            curve.constants.decimals[token.assetId] = token.decimals;
+            curve.constants.decimals[token.token] = token.decimals;
         })
-        const rewardTokenIds = rewardTokens.map((token) => token.assetId);
+        const rewardTokenIds = rewardTokens.map((token) => token.token);
 
         return await this._balances(rewardTokenIds, rewardTokenIds, ...addresses)
     }
@@ -320,7 +320,7 @@ export class Pool {
     public async claimableRewards(): Promise<IReward[]> {
         const rewardTokens = await this._getRewardTokens();
         const promises = rewardTokens.map((t) =>
-            callViewMethod(this.gauge as string, `claimable_reward("${curve.signerAddress}", "${t.assetId}")`)
+            callViewMethod(this.gauge as string, `claimable_reward("${curve.signerAddress}", "${t.token}")`)
         );
         const rewards = await Promise.all(promises) as number[];
 
@@ -333,7 +333,7 @@ export class Pool {
     public async claimedRewards(): Promise<IReward[]> {
         const rewardTokens = await this._getRewardTokens();
         const promises = rewardTokens.map((t) =>
-            callViewMethod(this.gauge as string, `claimed_reward("${curve.signerAddress}", "${t.assetId}")`)
+            callViewMethod(this.gauge as string, `claimed_reward("${curve.signerAddress}", "${t.token}")`)
         );
         const rewards = await Promise.all(promises) as number[];
 
