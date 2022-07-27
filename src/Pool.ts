@@ -44,7 +44,7 @@ export class Pool {
         balances: (...addresses: (string | string[])[]) => Promise<IDict<IDict<string>> | IDict<string>>,
         lpTokenBalances: (...addresses: (string | string[])[]) => Promise<IDict<IDict<string>> | IDict<string>>,
         coinBalances: (...addresses: (string | string[])[]) => Promise<IDict<IDict<string>> | IDict<string>>,
-        rewardTokenBalances: (...addresses: (string | string[])[]) => Promise<IDict<IDict<string>> | IDict<string>>,
+        rewardBalances: (...addresses: (string | string[])[]) => Promise<IDict<IDict<string>> | IDict<string>>,
     };
 
     constructor(id: string) {
@@ -72,7 +72,7 @@ export class Pool {
             balances: this.walletBalances.bind(this),
             lpTokenBalances: this.walletLpTokenBalances.bind(this),
             coinBalances: this.walletCoinBalances.bind(this),
-            rewardTokenBalances: this.walletRewardBalances.bind(this),
+            rewardBalances: this.walletRewardBalances.bind(this),
         }
     }
 
@@ -440,7 +440,6 @@ export class Pool {
         const totalSupply = formatUnits(_totalSupply, this.lpTokenDecimals);
 
         const rewardTokens = await this.rewardTokens();
-
         const result: IProfit[] = [];
         for (const rewardToken of rewardTokens) {
             let _speed = 0
