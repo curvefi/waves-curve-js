@@ -1,12 +1,16 @@
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
 import { curve } from "./curve";
-import {IDict, IRewardToken, IReward, IRewardApy} from './interfaces';
+import { IDict, IRewardToken, IReward, IRewardApy, IProfit } from './interfaces';
 import { callViewMethod, getDataByRegExp, getAssetDetails, getDataByKey } from './data';
 import { BN, formatUnits, parseUnits, formatNumber, parseBN, _getBalances, _prepareAddresses, _getCoinIds, _cutZeros, _getUsdRate } from './utils';
 import { depositTx, withdrawTx, withdrawOneCoinTx, swapTx, stakeTx, unstakeTx, claimTx } from "./transactions";
 import { POOLS_DATA } from "./constants/poolsData";
 
+const DAY = 1440;
+const WEEK = 7 * DAY;
+const MONTH = 30 * DAY;
+const YEAR = 365 * DAY;
 
 export class Pool {
     id: string;
@@ -423,6 +427,45 @@ export class Pool {
             ...rewardTokens[i],
             amount: formatUnits(n, rewardTokens[i].decimals),
         }))
+    }
+
+    public rewardsProfit = async (address = ""): Promise<IProfit[]> => {
+        if (!this.gauge) throw Error(`${this.name} doesn't have gauge`);
+
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const balance = (await this.walletLpTokenBalances(address) as IDict<string>).gauge
+        const _totalSupply = (await getDataByKey(this.gauge as string, 'tokens')).value as number;
+        const totalSupply = formatUnits(_totalSupply, this.lpTokenDecimals);
+
+        const rewardTokens = await this._getRewardTokens();
+
+        const result: IProfit[] = [];
+        for (const rewardToken of rewardTokens) {
+            let _speed = 0
+            try {
+                _speed = (await getDataByKey(this.gauge, rewardToken.token + "_speed")).value as number;
+            } catch (err: any) {
+                console.log(err.message);
+            }
+            const speed = formatUnits(_speed, rewardToken.decimals);
+            const tokenPrice = await _getUsdRate(rewardToken.token);
+
+            result.push(
+                {
+                    day: BN(speed).times(DAY).times(balance).div(totalSupply).toString(),
+                    week: BN(speed).times(WEEK).times(balance).div(totalSupply).toString(),
+                    month: BN(speed).times(MONTH).times(balance).div(totalSupply).toString(),
+                    year: BN(speed).times(YEAR).times(balance).div(totalSupply).toString(),
+                    token: rewardToken.token,
+                    symbol: rewardToken.symbol,
+                    price: tokenPrice,
+                }
+            )
+        }
+
+        return result;
     }
 
     private _getRewardTokens = memoize(
