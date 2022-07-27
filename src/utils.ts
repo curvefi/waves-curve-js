@@ -7,6 +7,7 @@ export const _cutZeros = (strn: string): string => {
     return strn.replace(/0+$/gi, '').replace(/\.$/gi, '');
 }
 
+// 5125000 --> '5.125'
 export const formatUnits = (_n: number | string, decimals: number): string => {
     const _strn = String(_n);
     if (decimals <= 0) return _strn;
@@ -14,6 +15,7 @@ export const formatUnits = (_n: number | string, decimals: number): string => {
     return _cutZeros(_strn.slice(0, _strn.length - decimals) + "." + _strn.slice(_strn.length - decimals));
 }
 
+// '5.125' --> 5125000
 export const parseUnits = (n: number | string, decimals: number): number => {
     if (Number(n) !== Number(n)) throw Error(`${n} is not a number`); // NaN
     const [integer, fractional] = String(n).split(".");
@@ -22,10 +24,12 @@ export const parseUnits = (n: number | string, decimals: number): number => {
     return Number(integer + fractional + '0'.repeat(decimals - fractional.length));
 }
 
+// BN('5.125') --> 5125000
 export const parseBN = (nBN: BigNumber, decimals: number): number => {
     return parseUnits(nBN.toFixed(decimals), decimals);
 }
 
+// 5.12500000 --> '5.125'
 export const formatNumber = (n: number | string, decimals: number): string => {
     return formatUnits(parseUnits(n, decimals), decimals);
 }
