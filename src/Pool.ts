@@ -253,13 +253,34 @@ export class Pool {
         return await curve.invoke(withdrawOneCoinTx(this.address, i, _minAmount, _payment));
     }
 
-    public async userShare(address = ""):
-        Promise<{ lpUser: string, lpTotal: string, lpShare: string, gaugeUser?: string, gaugeTotal?: string, gaugeShare?: string }>
-    {
+    // TODO add baseProfit
+    // ---------------- USER BALANCES, BASE PROFIT AND SHARE ----------------
+
+    private async _userLpTotalBalance(address: string): Promise<string> {
         const withGauge = !!this.gauge;
+        const lpBalance = await this.walletLpTokenBalances(address) as IDict<string>;
+        let lpTotalBalanceBN = BN(lpBalance.lpToken);
+        if (withGauge) lpTotalBalanceBN = lpTotalBalanceBN.plus(BN(lpBalance.gauge as string));
+
+        return formatNumber(lpTotalBalanceBN.toString(), this.lpTokenDecimals)
+    }
+
+    public async userBalances(address = ""): Promise<string[]> {
         address = address || curve.signerAddress;
         if (!address) throw Error("Need to connect wallet or pass address into args");
 
+        const lpTotalBalance = await this._userLpTotalBalance(address);
+
+        return await this.withdrawExpected(lpTotalBalance);
+    }
+
+    public async userShare(address = ""):
+        Promise<{ lpUser: string, lpTotal: string, lpShare: string, gaugeUser?: string, gaugeTotal?: string, gaugeShare?: string }>
+    {
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const withGauge = !!this.gauge;
         const userLpBalance = await this.walletLpTokenBalances(address) as IDict<string>;
         let userLpTotalBalanceBN = BN(userLpBalance.lpToken);
         if (withGauge) userLpTotalBalanceBN = userLpTotalBalanceBN.plus(BN(userLpBalance.gauge as string));
