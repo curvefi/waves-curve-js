@@ -14,7 +14,7 @@ class Curve implements ICurve {
     signerAddress: string
     chainId: number
     constants: {
-        coins: IDict<string>,
+        COINS: IDict<string>,
         decimals: IDict<number>,
         poolsData: IDict<IPoolData>,
         GAUGES: string[],
@@ -30,8 +30,8 @@ class Curve implements ICurve {
         this.signerAddress = '';
         this.chainId = 87;
         this.constants = {
+            COINS: {},
             decimals: {},
-            coins: {},
             poolsData: {},
             GAUGES: [],
         };
@@ -74,7 +74,7 @@ class Curve implements ICurve {
         }
 
         this.constants.decimals['WAVES'] = 8;
-        this.constants.coins = COINS;
+        this.constants.COINS = COINS;
         this.constants.poolsData = POOLS_DATA;
         // @ts-ignore
         this.constants.GAUGES = Object.values(POOLS_DATA).map((d) => d.gauge_address).filter((addr) => addr);

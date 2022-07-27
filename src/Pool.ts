@@ -1,9 +1,9 @@
 import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
 import { curve } from "./curve";
-import { IDict, IRewardToken, IReward } from './interfaces';
+import {IDict, IRewardToken, IReward, IRewardApy} from './interfaces';
 import { callViewMethod, getDataByRegExp, getAssetDetails, getDataByKey } from './data';
-import { BN, formatUnits, parseUnits, formatNumber, parseBN, _getBalances, _prepareAddresses, _getCoinIds, _cutZeros } from './utils';
+import { BN, formatUnits, parseUnits, formatNumber, parseBN, _getBalances, _prepareAddresses, _getCoinIds, _cutZeros, _getUsdRate } from './utils';
 import { depositTx, withdrawTx, withdrawOneCoinTx, swapTx, stakeTx, unstakeTx, claimTx } from "./transactions";
 import { POOLS_DATA } from "./constants/poolsData";
 
@@ -34,6 +34,7 @@ export class Pool {
         }>,
         balances: () => Promise<string[]>,
         totalLiquidity: (useApi?: boolean) => Promise<string>,
+        rewardsApy: () => Promise<IRewardApy[]>;
     }
     wallet: {
         balances: (...addresses: (string | string[])[]) => Promise<IDict<IDict<string>> | IDict<string>>,
@@ -61,6 +62,7 @@ export class Pool {
             parameters: this.statsParameters.bind(this),
             balances: this.statsBalances.bind(this),
             totalLiquidity: this.statsTotalLiquidity.bind(this),
+            rewardsApy: this.statsRewardsApy,
         }
         this.wallet = {
             balances: this.walletBalances.bind(this),
@@ -107,6 +109,38 @@ export class Pool {
         return _cutZeros(balances.map(BN).reduce((a, b) => a.plus(b)).toFixed(Math.max(...this.decimals)));
     }
 
+    private statsRewardsApy = async (): Promise<IRewardApy[]> => {
+        if (!this.gauge) return [];
+
+        const rewardsApy: IRewardApy[] = [];
+        const rewardTokens = await this._getRewardTokens();
+        for (const rewardToken of rewardTokens) {
+            const totalLiquidityUSD = Number(await this.statsTotalLiquidity());
+            const rewardPrice = await _getUsdRate(rewardToken.token);
+
+            let _speed = 0
+            try {
+                _speed = (await getDataByKey(this.gauge, rewardToken.token + "_speed")).value as number;
+            } catch (err: any) {
+                console.log(err.message);
+            }
+            const speed = formatUnits(_speed, rewardToken.decimals);
+            const apyBN = BN(speed).times(525600).times(rewardPrice).div(Number(totalLiquidityUSD));
+            const apy = apyBN.times(100).toFixed(4);
+
+            rewardsApy.push({
+                token: rewardToken.token,
+                symbol: rewardToken.symbol,
+                decimals: rewardToken.decimals,
+                price: rewardPrice,
+                gauge: this.gauge.toLowerCase(),
+                apy,
+            });
+        }
+
+        return rewardsApy
+    }
+
     // --- WALLET BALANCES ---
 
     private async walletBalances(...addresses: (string | string[])[]): Promise<IDict<IDict<string>> | IDict<string>> {
@@ -139,9 +173,6 @@ export class Pool {
 
     private async walletRewardBalances(...addresses: (string | string[])[]): Promise<IDict<IDict<string>> | IDict<string>> {
         const rewardTokens = await this._getRewardTokens();
-        await rewardTokens.forEach((token) => {
-            curve.constants.decimals[token.token] = token.decimals;
-        })
         const rewardTokenIds = rewardTokens.map((token) => token.token);
 
         return await this._balances(rewardTokenIds, rewardTokenIds, ...addresses)
@@ -288,7 +319,7 @@ export class Pool {
         const _lpTotal = (await getAssetDetails(this.lpToken) as { quantity: number }).quantity;
         const lpTotal = formatUnits(_lpTotal, this.lpTokenDecimals);
 
-        let gaugeTotal;
+        let gaugeTotal = "0";
         if (withGauge) {
             const _gaugeTotal = (await getDataByKey(this.gauge as string, 'tokens')).value as number;
             gaugeTotal = formatUnits(_gaugeTotal, this.lpTokenDecimals);
@@ -413,6 +444,11 @@ export class Pool {
                 token: 'WAVES',
                 symbol: 'WAVES',
                 decimals: 8,
+            });
+
+            // Update constants.DECIMALS
+            await rewards.forEach((token) => {
+                curve.constants.decimals[token.token] = token.decimals;
             });
 
             return rewards

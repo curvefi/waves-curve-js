@@ -50,3 +50,9 @@ export interface IRewardToken {
 export interface IReward extends IRewardToken{
     amount: string,
 }
+
+export interface IRewardApy extends IRewardToken {
+    gauge: string,
+    price: number,
+    apy: string,
+}

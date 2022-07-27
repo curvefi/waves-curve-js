@@ -1,3 +1,4 @@
+import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { curve } from "./curve";
 import { IDict } from "./interfaces";
@@ -49,7 +50,7 @@ export const _prepareAddresses = (addresses: (string | string[])[]): string[] =>
 export const _getCoinIds = (coins: string[]): string[] => {
     coins = coins as string[];
 
-    const coinAddresses = coins.map((c) => curve.constants.coins[c.toLowerCase()] || c);
+    const coinAddresses = coins.map((c) => curve.constants.COINS[c.toLowerCase()] || c);
     const availableAddresses = Object.keys(curve.constants.decimals);
     for (const coinAddr of coinAddresses) {
         // @ts-ignore
@@ -89,4 +90,27 @@ export const _getBalances = async (coins: string[], addresses: string[]): Promis
     });
 
     return balances;
+}
+
+const _usdRatesCache: IDict<{ rate: number, time: number }> = {}
+export const _getUsdRate = async (assetId: string): Promise<number> => {
+    // CRV
+    if (assetId === curve.constants.COINS.crv) {
+        assetId = 'curve-dao-token';
+    }
+
+    if ((_usdRatesCache[assetId]?.time || 0) + 600000 < Date.now()) {
+        // @ts-ignore
+        const url = ['curve-dao-token'].includes(assetId) ?
+            `https://api.coingecko.com/api/v3/simple/price?ids=${assetId}&vs_currencies=usd` :
+            `https://api.coingecko.com/api/v3/simple/token_price/waves?contract_addresses=${assetId}&vs_currencies=usd`
+        const response = await axios.get(url);
+        try {
+            _usdRatesCache[assetId] = {'rate': response.data[assetId]['usd'] ?? 1, 'time': Date.now()};
+        } catch (err) { // TODO pay attention!
+            _usdRatesCache[assetId] = {'rate': 1, 'time': Date.now()};
+        }
+    }
+
+    return _usdRatesCache[assetId]['rate']
 }
