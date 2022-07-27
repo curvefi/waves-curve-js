@@ -253,6 +253,36 @@ export class Pool {
         return await curve.invoke(withdrawOneCoinTx(this.address, i, _minAmount, _payment));
     }
 
+    public async userShare(address = ""):
+        Promise<{ lpUser: string, lpTotal: string, lpShare: string, gaugeUser?: string, gaugeTotal?: string, gaugeShare?: string }>
+    {
+        const withGauge = !!this.gauge;
+        address = address || curve.signerAddress;
+        if (!address) throw Error("Need to connect wallet or pass address into args");
+
+        const userLpBalance = await this.walletLpTokenBalances(address) as IDict<string>;
+        let userLpTotalBalanceBN = BN(userLpBalance.lpToken);
+        if (withGauge) userLpTotalBalanceBN = userLpTotalBalanceBN.plus(BN(userLpBalance.gauge as string));
+
+        const _lpTotal = (await getAssetDetails(this.lpToken) as { quantity: number }).quantity;
+        const lpTotal = formatUnits(_lpTotal, this.lpTokenDecimals);
+
+        let gaugeTotal;
+        if (withGauge) {
+            const _gaugeTotal = (await getDataByKey(this.gauge as string, 'tokens')).value as number;
+            gaugeTotal = formatUnits(_gaugeTotal, this.lpTokenDecimals);
+        }
+
+        return {
+            lpUser: formatNumber(userLpTotalBalanceBN.toString(), this.lpTokenDecimals),
+            lpTotal,
+            lpShare: userLpTotalBalanceBN.div(lpTotal).times(100).toString(),
+            gaugeUser: userLpBalance.gauge,
+            gaugeTotal,
+            gaugeShare: withGauge ? BN(userLpBalance.gauge).div(gaugeTotal).times(100).toString() : undefined,
+        }
+    }
+
     // --- SWAP ---
 
     public async swapExpected(inputCoin: string | number, outputCoin: string | number, amount: number | string): Promise<string> {
