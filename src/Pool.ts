@@ -211,7 +211,7 @@ export class Pool {
         const balancedAmountsBN = poolBalancesRatiosBN.map((r) => r.times(totalAmountBN));
         const balancedExpectedBN = BN(await this.depositExpected(balancedAmountsBN.map((aBN, i) => aBN.toFixed(this.decimals[i]))));
 
-        return expectedBN.minus(balancedExpectedBN).div(expectedBN).times(100).toString();
+        return expectedBN.minus(balancedExpectedBN).div(balancedExpectedBN.gt(expectedBN) ? balancedExpectedBN : expectedBN).times(100).toString();
     }
 
     public async depositBalancedAmounts(): Promise<string[]> {
@@ -569,7 +569,7 @@ export class Pool {
         const balancedAmounts = balancedAmountsBN.map((amountBN, i) => amountBN.toFixed(this.decimals[i]));
         const balancedExpectedBN = BN(await this.calcLpTokenAmount(balancedAmounts, false));
 
-        return balancedExpectedBN.minus(expectedBN).div(balancedExpectedBN).times(100).toString()
+        return balancedExpectedBN.minus(expectedBN).div(balancedExpectedBN.gt(expectedBN) ? balancedExpectedBN : expectedBN).times(100).toString()
     }
 
     private _balancedAmounts(poolBalancesBN: BigNumber[], walletBalancesBN: BigNumber[], decimals: number[]): string[] {
