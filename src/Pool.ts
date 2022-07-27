@@ -117,7 +117,7 @@ export class Pool {
         if (!this.gauge) return [];
 
         const rewardsApy: IRewardApy[] = [];
-        const rewardTokens = await this._getRewardTokens();
+        const rewardTokens = await this.rewardTokens();
         for (const rewardToken of rewardTokens) {
             const totalLiquidityUSD = Number(await this.statsTotalLiquidity());
             const rewardPrice = await _getUsdRate(rewardToken.token);
@@ -176,7 +176,7 @@ export class Pool {
     }
 
     private async walletRewardBalances(...addresses: (string | string[])[]): Promise<IDict<IDict<string>> | IDict<string>> {
-        const rewardTokens = await this._getRewardTokens();
+        const rewardTokens = await this.rewardTokens();
         const rewardTokenIds = rewardTokens.map((token) => token.token);
 
         return await this._balances(rewardTokenIds, rewardTokenIds, ...addresses)
@@ -404,7 +404,7 @@ export class Pool {
     }
 
     public async claimableRewards(): Promise<IReward[]> {
-        const rewardTokens = await this._getRewardTokens();
+        const rewardTokens = await this.rewardTokens();
         const promises = rewardTokens.map((t) =>
             callViewMethod(this.gauge as string, `claimable_reward("${curve.signerAddress}", "${t.token}")`)
         );
@@ -417,7 +417,7 @@ export class Pool {
     }
 
     public async claimedRewards(): Promise<IReward[]> {
-        const rewardTokens = await this._getRewardTokens();
+        const rewardTokens = await this.rewardTokens();
         const promises = rewardTokens.map((t) =>
             callViewMethod(this.gauge as string, `claimed_reward("${curve.signerAddress}", "${t.token}")`)
         );
@@ -439,7 +439,7 @@ export class Pool {
         const _totalSupply = (await getDataByKey(this.gauge as string, 'tokens')).value as number;
         const totalSupply = formatUnits(_totalSupply, this.lpTokenDecimals);
 
-        const rewardTokens = await this._getRewardTokens();
+        const rewardTokens = await this.rewardTokens();
 
         const result: IProfit[] = [];
         for (const rewardToken of rewardTokens) {
@@ -468,7 +468,7 @@ export class Pool {
         return result;
     }
 
-    private _getRewardTokens = memoize(
+    public rewardTokens = memoize(
         async (): Promise<IRewardToken[]> => {
             const rewardIds = ((await getDataByKey(this.gauge as string, "rewards")).value as string).split(',');
             if (rewardIds.length === 1 && rewardIds[0] === '') return [];
