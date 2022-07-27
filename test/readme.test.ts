@@ -86,7 +86,7 @@ const walletBalancesTest = async () => {
     //     DJEYQHGZ2LZzr37a5NK7BrYY3XKdAVXAFvaML9SGV7Do: '19987762.381362',
     //     CPsgiCdE97iKU7zW9roH8C3mJ3yHMhGc7bkvTatp3R4L: '9952566.702206'
     // }
-    console.log(await pool.wallet.rewardTokenBalances());
+    console.log(await pool.wallet.rewardBalances());
     // {
     //     GGmeY8wGA8y2apHrxLrUXCgF8REBtg5WGwgYS4j2FMJ2: '0',
     //     ML5NV692BwwGctQfQZe6wiP7i5CV3VwsmFUz2dR1PFH: '0'
@@ -121,7 +121,7 @@ const walletBalancesTest = async () => {
 }
 
 const statsTest = async () => {
-    await curve.init(NODE, "Seed", { seed: SEED, chainId: 82 });
+    await curve.init(NODE, "Seed", { seed: SEED, chainId: 84 });
 
     const pool = curve.getPool('waves3pool');
 
@@ -140,6 +140,25 @@ const statsTest = async () => {
     // [ '1340783.424594', '912176.567704', '547361.662204' ]
     console.log(await pool.stats.totalLiquidity());
     // 2800321.654502
+    console.log(await pool.stats.rewardsApy());
+    // [
+    //     {
+    //         token: '9U3bZbDrpQ2TpFw8YvyitZMdKG2Lx8N6uTCJnqEgh6Pp',
+    //         symbol: 'CRV Token',
+    //         decimals: 8,
+    //         price: 1.2,
+    //         gauge: '3mybhsp1exjeivdt5ggbsarelfnswzwnnce',
+    //         apy: '0.0000'
+    //     },
+    //     {
+    //         token: '2sFcNkyjHFFc5B8jAPuXxcVKc2Q89JVPSAjzKt1ev9fm',
+    //         symbol: 'BONUS',
+    //         decimals: 1,
+    //         price: 1,
+    //         gauge: '3mybhsp1exjeivdt5ggbsarelfnswzwnnce',
+    //         apy: '0.0000'
+    //     }
+    // ]
 }
 
 const depositTest = async () => {
@@ -297,11 +316,46 @@ const poolSwapTest = async () => {
 }
 
 const rewardsTest = async () => {
-    await curve.init(NODE, "Seed", { seed: SEED, chainId: 82 });
+    await curve.init(NODE, "Seed", { seed: SEED, chainId: 84 });
 
     const pool = curve.getPool('waves3pool');
 
-    console.log(await pool.wallet.rewardTokenBalances());
+    console.log(await pool.rewardTokens());
+    // [
+    //     {
+    //         token: '9U3bZbDrpQ2TpFw8YvyitZMdKG2Lx8N6uTCJnqEgh6Pp',
+    //         symbol: 'CRV Token',
+    //         decimals: 8
+    //     },
+    //     {
+    //         token: '2sFcNkyjHFFc5B8jAPuXxcVKc2Q89JVPSAjzKt1ev9fm',
+    //         symbol: 'BONUS',
+    //         decimals: 1
+    //     }
+    // ]
+    console.log(await pool.rewardsProfit());
+    // [
+    //     {
+    //         day: '0',
+    //         week: '0',
+    //         month: '0',
+    //         year: '0',
+    //         token: '9U3bZbDrpQ2TpFw8YvyitZMdKG2Lx8N6uTCJnqEgh6Pp',
+    //         symbol: 'CRV Token',
+    //         price: 1.2
+    //     },
+    //     {
+    //         day: '0',
+    //         week: '0',
+    //         month: '0',
+    //         year: '0',
+    //         token: '2sFcNkyjHFFc5B8jAPuXxcVKc2Q89JVPSAjzKt1ev9fm',
+    //         symbol: 'BONUS',
+    //         price: 1
+    //     }
+    // ]
+
+    console.log(await pool.wallet.rewardBalances());
     // {
     //     GGmeY8wGA8y2apHrxLrUXCgF8REBtg5WGwgYS4j2FMJ2: '0',
     //     ML5NV692BwwGctQfQZe6wiP7i5CV3VwsmFUz2dR1PFH: '0'
@@ -340,9 +394,28 @@ const rewardsTest = async () => {
     //     }
     // ]
 
-    console.log(await pool.wallet.rewardTokenBalances());
+    console.log(await pool.wallet.rewardBalances());
     // {
     //     GGmeY8wGA8y2apHrxLrUXCgF8REBtg5WGwgYS4j2FMJ2: '58.74161447',
     //     ML5NV692BwwGctQfQZe6wiP7i5CV3VwsmFUz2dR1PFH: '0'
+    // }
+}
+
+const userBalancesBaseProfitAndShareTest = async () => {
+    await curve.init(NODE, "Seed", { seed: SEED, chainId: 84 });
+
+    const pool = curve.getPool('waves3pool');
+
+    console.log(await pool.userBalances());
+    // [ '625782.932618', '731796.575426', '682268.245315' ]
+
+    console.log(await pool.userShare());
+    // {
+    //     lpUser: '900000',
+    //     lpTotal: '14379436.268194',
+    //     lpShare: '6.258937994604961104',
+    //     gaugeUser: '900000',
+    //     gaugeTotal: '2089048.252053',
+    //     gaugeShare: '43.081819633200441537'
     // }
 }

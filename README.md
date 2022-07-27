@@ -222,6 +222,25 @@ import curve from "@curvefi/waves-api";
     // [ '1340783.424594', '912176.567704', '547361.662204' ]
     await pool.stats.totalLiquidity();
     // 2800321.654502
+    await pool.stats.rewardsApy();
+    // [
+    //     {
+    //         token: '9U3bZbDrpQ2TpFw8YvyitZMdKG2Lx8N6uTCJnqEgh6Pp',
+    //         symbol: 'CRV Token',
+    //         decimals: 8,
+    //         price: 1.2,
+    //         gauge: '3mybhsp1exjeivdt5ggbsarelfnswzwnnce',
+    //         apy: '0.0000'
+    //     },
+    //     {
+    //         token: '2sFcNkyjHFFc5B8jAPuXxcVKc2Q89JVPSAjzKt1ev9fm',
+    //         symbol: 'BONUS',
+    //         decimals: 1,
+    //         price: 1,
+    //         gauge: '3mybhsp1exjeivdt5ggbsarelfnswzwnnce',
+    //         apy: '0.0000'
+    //     }
+    // ]
 })()
 ````
 
@@ -408,7 +427,42 @@ import curve from "@curvefi/waves-api";
 
     const pool = curve.getPool('waves3pool');
 
-    await pool.wallet.rewardTokenBalances();
+    await pool.rewardTokens();
+    // [
+    //     {
+    //         token: '9U3bZbDrpQ2TpFw8YvyitZMdKG2Lx8N6uTCJnqEgh6Pp',
+    //         symbol: 'CRV Token',
+    //         decimals: 8
+    //     },
+    //     {
+    //         token: '2sFcNkyjHFFc5B8jAPuXxcVKc2Q89JVPSAjzKt1ev9fm',
+    //         symbol: 'BONUS',
+    //         decimals: 1
+    //     }
+    // ]
+    await pool.rewardsProfit();
+    // [
+    //     {
+    //         day: '0',
+    //         week: '0',
+    //         month: '0',
+    //         year: '0',
+    //         token: '9U3bZbDrpQ2TpFw8YvyitZMdKG2Lx8N6uTCJnqEgh6Pp',
+    //         symbol: 'CRV Token',
+    //         price: 1.2
+    //     },
+    //     {
+    //         day: '0',
+    //         week: '0',
+    //         month: '0',
+    //         year: '0',
+    //         token: '2sFcNkyjHFFc5B8jAPuXxcVKc2Q89JVPSAjzKt1ev9fm',
+    //         symbol: 'BONUS',
+    //         price: 1
+    //     }
+    // ]
+
+    await pool.wallet.rewardBalances();
     // {
     //     GGmeY8wGA8y2apHrxLrUXCgF8REBtg5WGwgYS4j2FMJ2: '0',
     //     ML5NV692BwwGctQfQZe6wiP7i5CV3VwsmFUz2dR1PFH: '0'
@@ -447,10 +501,31 @@ import curve from "@curvefi/waves-api";
     //     }
     // ]
 
-    await pool.wallet.rewardTokenBalances();
+    await pool.wallet.rewardBalances();
     // {
     //     GGmeY8wGA8y2apHrxLrUXCgF8REBtg5WGwgYS4j2FMJ2: '58.74161447',
     //     ML5NV692BwwGctQfQZe6wiP7i5CV3VwsmFUz2dR1PFH: '0'
     // }
 })()
 ```
+
+## User balances and share
+```ts
+(async () => {
+    await curve.init(NODE, "Seed", { seed: SEED, chainId: 84 });
+
+    const pool = curve.getPool('waves3pool');
+    await pool.userBalances();
+    // [ '625782.932618', '731796.575426', '682268.245315' ]
+
+    await pool.userShare();
+    // {
+    //     lpUser: '900000',
+    //     lpTotal: '14379436.268194',
+    //     lpShare: '6.258937994604961104',
+    //     gaugeUser: '900000',
+    //     gaugeTotal: '2089048.252053',
+    //     gaugeShare: '43.081819633200441537'
+    // }
+})()
+````
