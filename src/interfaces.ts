@@ -28,7 +28,7 @@ export interface IPoolData {
 export interface ICurve {
     node: string,
     providerType: 'Keeper' | 'Signer' | 'Seed' | 'None',
-    signer: Signer,
+    signer: Signer | null,
     seed: string,
     signerAddress: string,
     chainId: number,

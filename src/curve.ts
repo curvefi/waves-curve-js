@@ -9,7 +9,7 @@ import { COINS } from "./constants/coins";
 class Curve implements ICurve {
     node: string
     providerType: 'Keeper' | 'Signer' | 'Seed' | 'None'
-    signer: Signer
+    signer: Signer | null
     seed: string
     signerAddress: string
     chainId: number
@@ -24,11 +24,10 @@ class Curve implements ICurve {
         // @ts-ignore
         this.node = null;
         this.providerType = 'None';
-        // @ts-ignore
+        this.chainId = 87;
         this.signer = null;
         this.seed = '';
         this.signerAddress = '';
-        this.chainId = 87;
         this.constants = {
             COINS: {},
             decimals: {},
@@ -45,6 +44,9 @@ class Curve implements ICurve {
         this.node = node;
         this.providerType = providerType;
         this.chainId = options.chainId ?? 87;
+        this.signer = null;
+        this.seed = '';
+        this.signerAddress = '';
 
         if (providerType === 'Keeper') {
             // @ts-ignore
