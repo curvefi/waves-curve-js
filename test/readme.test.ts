@@ -140,6 +140,10 @@ const statsTest = async () => {
     // [ '1340783.424594', '912176.567704', '547361.662204' ]
     console.log(await pool.stats.totalLiquidity());
     // 2800321.654502
+    console.log(await pool.stats.volume());
+    // 1242646.258629
+    console.log(await pool.stats.baseApy());
+    // { day: '7.94191715333079245', week: '1.13455959333297035' }
     console.log(await pool.stats.rewardsApy());
     // [
     //     {
