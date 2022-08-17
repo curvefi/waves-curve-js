@@ -41,6 +41,16 @@ export const callViewMethod = async (dApp: string, expr: string): Promise<number
     return res.data.result.value._2.value;
 };
 
+export const callViewMethodFullResult = async (dApp: string, expr: string): Promise<(number | string | boolean)[]> => {
+    if (!curve.node) throw Error('Curve object is not initialized. Call curve.init()');
+    const res = await axios.post(`${curve.node}/utils/script/evaluate/${dApp}`, { expr }, {
+        withCredentials: false,
+        headers: { 'Content-Type': 'application/json' },
+    });
+
+    return Object.keys(res.data.result.value).map((key: string) => res.data.result.value[key].value);
+};
+
 export const getGaugeBalance = async (userAddress: string, gaugeAddress: string): Promise<number> => {
     if (!curve.node) throw Error('Curve object is not initialized. Call curve.init()');
     const _balance = await callViewMethod(gaugeAddress, `claimable_tokens("${userAddress}")`);

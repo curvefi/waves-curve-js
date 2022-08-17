@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import memoize from "memoizee";
 import { curve } from "./curve";
 import { IDict, IRewardToken, IReward, IRewardApy, IProfit } from './interfaces';
-import { callViewMethod, getDataByRegExp, getAssetDetails, getDataByKey } from './data';
+import { callViewMethod, callViewMethodFullResult, getDataByRegExp, getAssetDetails, getDataByKey } from './data';
 import { BN, formatUnits, parseUnits, formatNumber, parseBN, _getBalances, _prepareAddresses, _getCoinIds, _cutZeros, _getUsdRate } from './utils';
 import { depositTx, withdrawTx, withdrawOneCoinTx, swapTx, stakeTx, unstakeTx, claimTx } from "./transactions";
 import { POOLS_DATA } from "./constants/poolsData";
@@ -38,6 +38,8 @@ export class Pool {
         }>,
         balances: () => Promise<string[]>,
         totalLiquidity: (useApi?: boolean) => Promise<string>,
+        volume: () => Promise<string>,
+        baseApy: () => Promise<{ day: string, week: string }>,
         rewardsApy: () => Promise<IRewardApy[]>;
     }
     wallet: {
@@ -66,6 +68,8 @@ export class Pool {
             parameters: this.statsParameters.bind(this),
             balances: this.statsBalances.bind(this),
             totalLiquidity: this.statsTotalLiquidity.bind(this),
+            volume: this.statsVolume.bind(this),
+            baseApy: this.statsBaseApy.bind(this),
             rewardsApy: this.statsRewardsApy,
         }
         this.wallet = {
@@ -111,6 +115,28 @@ export class Pool {
     private async statsTotalLiquidity(): Promise<string> {
         const balances = await this.statsBalances();
         return _cutZeros(balances.map(BN).reduce((a, b) => a.plus(b)).toFixed(Math.max(...this.decimals)));
+    }
+
+    private statsVolume = async (): Promise<string> => {
+        const [vol1, vol0, diff] = await callViewMethodFullResult(this.address, `get_volume_diff(${-86400000})`) as number[];
+        const volumeBN = BN(vol1).minus(vol0).times(86400000).div(diff);
+
+        return formatUnits(volumeBN.toFixed(0), 6); // TODO change decimals
+    }
+
+    private statsBaseApy = async (): Promise<{ day: string, week: string }> => {
+        const [[dayVp1, dayVp0, dayDiff], [weekVp1, weekVp0, weekDiff]] = await Promise.all([
+            callViewMethodFullResult(this.address, `get_virtual_price_diff(${-86400000})`),
+            callViewMethodFullResult(this.address, `get_virtual_price_diff(${-86400000 * 7})`),
+        ]) as number[][];
+
+        const dailyApyBN = BN(dayVp1).minus(dayVp0).times(86400000).div(dayDiff).div(dayVp0).times(365).times(100);
+        const weeklyApyBN = BN(weekVp1).minus(weekVp0).times(86400000).div(weekDiff).div(weekVp0).times(365).div(7).times(100);
+
+        return {
+            day: dailyApyBN.toString(),
+            week: weeklyApyBN.toString(),
+        }
     }
 
     private statsRewardsApy = async (): Promise<IRewardApy[]> => {

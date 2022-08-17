@@ -1,10 +1,10 @@
 // TESTNET
 export const COINS = {
     "waves" : "WAVES",
-    "usdn" : "orCzrtyh76FpY7EmMGoaz4njSQ7EZXvR5JXuuBGBRVc",
-    "usdt" : "Aar7uLuf8Fh67XKEMi8yPiwL56C2ACRAGpFxzsMuEw5m",
-    "usdc" : "586DKrFgPxvAze9bW9XAgStJTZQsaHVcNKYeVeUMnnku",
-    "crv" : "9U3bZbDrpQ2TpFw8YvyitZMdKG2Lx8N6uTCJnqEgh6Pp",
+    "usdn": "8LhxCrVXyf3hNEKU7aLFg7bchrJ6Rv3tVU9GFVKCZCuS",
+    "usdt": "Gw5aa4PHtKnV27ebRkUc2akWhEnNJfmrZ3TZg7YxoovP",
+    "usdc": "9WGXmhryaCqfWZ3d2yhBGfXhZkDTQVqC9fDMdYJfmxZB",
+    "crv" : "HbyPRitPyShfSzMcD7wBCgrAdHVkXBDPZWuRrAGEA4y",
 };
 
 // CUSTOM NETWORK
