@@ -1,6 +1,7 @@
 import { IInvokeScriptParams } from "@waves/waves-transactions";
 import { IPayment } from "./interfaces";
 import { curve } from "./curve";
+import json = Mocha.reporters.json;
 
 export const depositTx = (
     dApp: string,
@@ -26,7 +27,7 @@ export const withdrawTx = (
     dApp,
     call: {
         function: "remove_liquidity",
-        args: minAmounts.map((a) => ({ type: 'integer', value: a })),
+        args: [{ type: 'string', value: minAmounts.join(",") }],
     },
     payment,
     chainId: curve.chainId,

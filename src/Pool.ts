@@ -108,8 +108,9 @@ export class Pool {
     }
 
     private async statsBalances(): Promise<string[]> {
-        const _balances = await getDataByRegExp(this.address, "balances_%5Cd"); // %5C == \
-        return _balances.map((_b, i) => formatUnits(_b.value as number, this.decimals[i]));
+        const balancesStr = (await getDataByKey(this.address, "balances")).value as string;
+        const _balances = balancesStr.split(',');
+        return _balances.map((_b, i) => formatUnits(_b, this.decimals[i]));
     }
 
     private async statsTotalLiquidity(): Promise<string> {
@@ -216,7 +217,7 @@ export class Pool {
         }
 
         const _amounts = amounts.map((amount, i) => parseUnits(amount, this.decimals[i]));
-        const _expected = await callViewMethod(this.address, `calc_token_amount(${_amounts.join(',')},true)`) as number;
+        const _expected = await callViewMethod(this.address, `calc_token_amount("${_amounts.join(',')}",true)`) as number;
 
         return formatUnits(_expected, this.lpTokenDecimals)
     }

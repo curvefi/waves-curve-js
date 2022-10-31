@@ -94,8 +94,8 @@ const liquidityTest = (id: string) => {
 
 const exchangeTest = (id: string) => {
     describe(`${id} exchange`, function () {
-        for (let i = 0; i < 5; i++) {
-            for (let j = 0; j < 5; j++) {
+        for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 6; j++) {
                 if (i !== j) {
                     it(`${i} --> ${j}`, async function () {
                         const pool = new Pool(id);
