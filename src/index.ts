@@ -19,7 +19,7 @@ const curve = {
     init,
     chainId: 0,
     signerAddress: '',
-    getPoolList: () => ['waves3pool'],
+    getPoolList: () => ['waves4pool'],
     getBalances,
     getPool,
 }
